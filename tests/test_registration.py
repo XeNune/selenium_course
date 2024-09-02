@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 
-try: 
+def test_reg1():
     link = "http://suninjuly.github.io/registration2.html"
     browser = webdriver.Chrome()
     browser.get(link)
@@ -27,10 +27,5 @@ try:
 
     # с помощью assert проверяем, что ожидаемый текст совпадает с текстом на странице сайта
     assert "Congratulations! You have successfully registered!" == welcome_text
-    print("done")
-
-finally:
-    # ожидание чтобы визуально оценить результаты прохождения скрипта
-    time.sleep(10)
     # закрываем браузер после всех манипуляций
     browser.quit()
