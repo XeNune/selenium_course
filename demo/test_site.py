@@ -103,21 +103,20 @@ try:
     )
     submit_button.click()
 
+
+    ############
+    ############
+    ############
     # Click on the secondary button
     secondary_button = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "button.oxd-button"))
     )
     secondary_button.click()
-
-
-    # Check for the input field and handle it
-    print("check for text in input")
     time.sleep(5)
     try:
         text_inside_input = driver.execute_script('return document.querySelector("input[placeholder=\'Type for hints...\']").value')
     except:
         text_inside_input = ''
-    print(f"TEXT INSIDE INPUT: {text_inside_input}")
     time.sleep(5)
     if text_inside_input != '':
         button = WebDriverWait(driver, 10).until(
@@ -129,23 +128,21 @@ try:
             )
         button.click()
     else:
-        print('Input field None')
         time.sleep(5)
         button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
         )
-        if button is None:
-            time.sleep(5)
+        if button is None: 
+            #.oxd-button.oxd-button--medium.oxd-button--ghost
             button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.oxd-button--secondary"))
             )
-            time.sleep(5)
         button.click()
 
-        WebDriverWait(driver, 10).until(
+        button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
             )
-        driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+        button.click()
 
         error = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "span.oxd-text.oxd-text--span.oxd-input-group__message"))
@@ -160,7 +157,9 @@ try:
         EC.text_to_be_present_in_element((By.CSS_SELECTOR, '.oxd-table-row div:nth-child(4n+1) div'), "Submitted")
     )
     assert status_text, "Error in edit time"
-
+    ############
+    ############
+    ############
 
 
     sixth_menu_item = WebDriverWait(driver, 10).until(
@@ -190,7 +189,37 @@ try:
     WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".oxd-userdropdown-name")))
     assert data[0] in driver.find_element(By.CSS_SELECTOR, '.oxd-userdropdown-name').text, "Имя пользователя не изменилось."
     
-    
+    #Check admin's rights
+    #
+    #
+    ten_menu_item = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "li:nth-child(n+10)"))
+    )
+    ten_menu_item.click()
+
+    WebDriverWait(driver, 20).until(EC.element_located_to_be_selected((By.CSS_SELECTOR, "[name='username']")))
+    driver.find_element(By.CSS_SELECTOR, "[name='username]").send_keys("Admin")
+    driver.find_element(By.CSS_SELECTOR, "[name='password]").send_keys("admin123")
+    driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+
+    #Go to access records
+    button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".oxd-topbar-body-nav-tab:nth-child(2n)")))
+    button.click()
+    #Find employee(me)
+    input_element = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, 'input[placeholder="Type for hints..."]'))
+    )
+    user_name = driver.find_element(By.CSS_SELECTOR, ".oxd-userdropdown-name").text
+    input_element.send_keys(user_name)
+
+    time.sleep(5)
+    bootom_elem = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "div[role='listbox']"))
+    )
+    time.sleep(5)
+    innactive_elem.click()
+
+
 except Exception as e:
     print("Произошла ошибка:", str(e))
 

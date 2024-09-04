@@ -137,37 +137,30 @@ def test_error_message_when_project_empty(driver):
     print(f"TEXT INSIDE INPUT: {text_inside_input}")
     time.sleep(5)
     if text_inside_input != '':
-        button = WebDriverWait(driver, 10).until(
+        save_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
         )
-        if button is None:
+        if save_button is None:
             button = WebDriverWait(driver, 10).until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.oxd-button--secondary"))
             )
-        button.click()
+        save_button.click()
+        driver.find_element(By.CSS_SELECTOR, "button.oxd-button").click()
     else:
-        print('Input field None')
         time.sleep(5)
         button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
         )
-        if button is None:
-            time.sleep(5)
-            button = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.oxd-button--secondary"))
-            )
-            time.sleep(5)
         button.click()
-
-        WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']"))
-            )
-        driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
         error = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "span.oxd-text.oxd-text--span.oxd-input-group__message"))
         ).text
+
         assert error == "Select a Project", "No ERROR when project is empty."
+
+        driver.find_element(By.CSS_SELECTOR, "button.oxd-button").click()
+        time.sleep(5)
 
 def test_status_update(driver):
     time.sleep(2)
@@ -194,7 +187,7 @@ def test_user_name_update(driver):
     )
     input_fields = driver.find_elements(By.CSS_SELECTOR, ".orangehrm-horizontal-padding.orangehrm-vertical-padding input")
     
-    data = ["Alpatikov", "Aleksandr", "Aleksandrovich"]
+    data = ["Ivanov", "Ivan", "Ivanovich"]
 
     for i in range(min(3, len(input_fields))):
         time.sleep(1)
@@ -210,4 +203,34 @@ def test_user_name_update(driver):
     WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".oxd-userdropdown-name")))
     assert data[0] in driver.find_element(By.CSS_SELECTOR, '.oxd-userdropdown-name').text, "Имя пользователя не изменилось."
 
+def test_admin_menu(driver):
+    ten_menu_item = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "li:nth-child(n+10)"))
+    )
+    ten_menu_item.click()
+
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[name='password']")))
+    driver.find_element(By.CSS_SELECTOR, "input[name='password']").send_keys("admin123")
+    driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+    assert driver.current_url == "https://opensource-demo.orangehrmlive.com/web/index.php/maintenance/purgeEmployee"
+
+def test_employee_finding(driver):
+    #Go to access records
+    button = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".oxd-topbar-body-nav-tab:nth-child(2n)")))
+    button.click()
+    #Find employee(me)
+    input_element = WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, 'input[placeholder="Type for hints..."]'))
+    )
+    user_name = driver.find_element(By.CSS_SELECTOR, ".oxd-userdropdown-name").text
+    input_element.send_keys(user_name)
+
+    time.sleep(5)
+    bootom_elem = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "div[role='listbox']"))
+    )
+    bootom_elem.click()
+    driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
+    time.sleep(5)
+    assert driver.find_element(By.CLASS_NAME, "employee-image") is not None, "Employee not found"
 
