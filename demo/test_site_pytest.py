@@ -72,12 +72,25 @@ def test_employee_count_matches(driver):
         EC.presence_of_element_located((By.CSS_SELECTOR, ".orangehrm-horizontal-padding.orangehrm-vertical-padding span.oxd-text--span"))
     ).text
 
-    employee = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, '.orangehrm-container'))
-    )
-    employee_cards = employee.find_elements(By.CSS_SELECTOR, '.oxd-table-card')
-    count = len(employee_cards)
-    assert str(count) in number_of_employee
+    count = 0
+    flag = True
+
+    while flag:
+        employee = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '.orangehrm-container'))
+        )
+        employee_cards = employee.find_elements(By.CSS_SELECTOR, '.oxd-table-card')
+        count += len(employee_cards)
+
+        try:
+            next_page = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, ".oxd-pagination-page-item.oxd-pagination-page-item--previous-next .bi-chevron-right"))
+            )
+            next_page.click()
+            time.sleep(2)
+        except:
+            flag = False
+    assert str(count) in number_of_employee, "Неправильное отображение количества сотрудников"
 
 def test_click_fourth_menu_item(driver):
     time.sleep(2)
@@ -158,9 +171,17 @@ def test_error_message_when_project_empty(driver):
         ).text
 
         assert error == "Select a Project", "No ERROR when project is empty."
-
+        time.sleep(2)
         driver.find_element(By.CSS_SELECTOR, "button.oxd-button").click()
-        time.sleep(5)
+        try:
+            button = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, "button.oxd-button--secondary"))
+                )
+            button.click()
+        except:
+            # driver.find_element(By.CSS_SELECTOR, "button.oxd-button").click()
+            # time.sleep(5)
+            pass
 
 def test_status_update(driver):
     time.sleep(2)
